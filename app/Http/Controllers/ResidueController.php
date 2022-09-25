@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreResidueRequest;
 use App\Http\Requests\UpdateResidueRequest;
 use App\Jobs\InsertResiduesJob;
+use App\Modules\Residue\UseCases\DeleteResidue;
 use App\Modules\Residue\UseCases\ResidueInput;
 use App\Modules\Residue\UseCases\UpdateResidue;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class ResidueController extends Controller
 {
     public function __construct(
-        private readonly UpdateResidue $updateResidue
+        private readonly UpdateResidue $updateResidue,
+        private readonly DeleteResidue $deleteResidue
     ) {
     }
 
@@ -26,6 +30,7 @@ class ResidueController extends Controller
         $storagePath = $request->file('spreadsheet')->store('spreadsheets');
 
         InsertResiduesJob::dispatch($storagePath);
+        Log::notice('Tarefa de inserção de dados da planilha de Resíduo iniciada', [$storagePath]);
 
         return response()->json([
             'message' => 'Planilha logo será processada'
@@ -52,6 +57,10 @@ class ResidueController extends Controller
         try {
             $this->updateResidue->handle($id, $input);
         } catch (Exception $exception) {
+            Log::error($exception->getMessage(), [
+                'exception' => $exception
+            ]);
+
             return response()->json([
                 'message' => $exception->getMessage()
             ], $exception->getCode() ?? 400);
@@ -64,6 +73,20 @@ class ResidueController extends Controller
 
     public function destroy($id)
     {
-        //
+        try {
+            $this->deleteResidue->handle($id);
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage(), [
+                'exception' => $exception
+            ]);
+
+            return response()->json([
+                'message' => $exception->getMessage()
+            ], $exception->getCode() ?? 400);
+        }
+
+        return response()->json([
+            'message' => 'Resíduo excluído'
+        ], 200);
     }
 }
