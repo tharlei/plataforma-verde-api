@@ -40,4 +40,15 @@ class EloquentResidueRepository implements ResidueRepository
     {
         $this->residueModel->findOrFail($id)->delete();
     }
+
+    public function exists(string $id): bool
+    {
+        $residue = $this->residueModel->find($id);
+
+        if (empty($residue)) {
+            return false;
+        }
+
+        return true;
+    }
 }
