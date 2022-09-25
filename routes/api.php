@@ -16,3 +16,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => 'Plataforma Verde')->name('home');
 Route::post('/residues', [ResidueController::class, 'store'])->name('residue.store');
+Route::put('/residues/{id}', [ResidueController::class, 'update'])->name('residue.update');
