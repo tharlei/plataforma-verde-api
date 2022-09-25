@@ -52,7 +52,9 @@ class InsertResiduesJob implements ShouldQueue
 
             Storage::delete($this->storagePath);
         } catch (Exception $exception) {
-            Log::error($exception->getMessage());
+            Log::error('Erro ao processar planilha de dados de Resíduo', [
+                'exception' => $exception
+            ]);
         }
     }
 }
