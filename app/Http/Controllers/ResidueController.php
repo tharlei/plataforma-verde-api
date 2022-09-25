@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreResidueRequest;
 use App\Jobs\InsertResiduesJob;
 use Illuminate\Http\Request;
 
@@ -15,14 +16,14 @@ class ResidueController extends Controller
     {
     }
 
-    public function store(Request $request)
+    public function store(StoreResidueRequest $request)
     {
         $storagePath = $request->file('spreadsheet')->store('spreadsheets');
 
         InsertResiduesJob::dispatch($storagePath);
 
         return response()->json([
-            'message' => 'Spreadsheet will be processed soon'
+            'message' => 'Planilha logo será processada'
         ], 200);
     }
 
