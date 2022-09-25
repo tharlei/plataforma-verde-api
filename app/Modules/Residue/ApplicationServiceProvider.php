@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Residue;
 
-use App\Repositories\EloquentResidueRepository;
+use App\Repositories\Residue\EloquentResidueRepository;
 use Illuminate\Support\ServiceProvider;
 
 final class ApplicationServiceProvider extends ServiceProvider
