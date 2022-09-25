@@ -15,7 +15,7 @@ class InsertManyResidues
 
     public function handle(array $residues)
     {
-        $residues = collect($residues)->map(fn (CreateResidueInput $input) => $this->residueFactory->new(
+        $residues = collect($residues)->map(fn (ResidueInput $input) => $this->residueFactory->new(
             $input->name,
             $input->type,
             $input->category,

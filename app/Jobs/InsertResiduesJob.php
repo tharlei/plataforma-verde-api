@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Modules\Residue\UseCases\CreateResidueInput;
+use App\Modules\Residue\UseCases\ResidueInput;
 use App\Modules\Residue\UseCases\InsertManyResidues;
 use App\Utils\SpreadsheetUtil;
 use Exception;
@@ -38,7 +38,7 @@ class InsertResiduesJob implements ShouldQueue
         try {
             $spreadsheetItems = $spreadsheetUtil->mapToCollection($this->storagePath);
 
-            $input = $spreadsheetItems->map(fn ($item) => new CreateResidueInput(
+            $input = $spreadsheetItems->map(fn ($item) => new ResidueInput(
                 $item->nome_comum_do_residuo,
                 $item->tipo_de_residuo,
                 $item->categoria,

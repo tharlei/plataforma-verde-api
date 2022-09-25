@@ -2,7 +2,7 @@
 
 namespace App\Modules\Residue\UseCases;
 
-final class CreateResidueInput
+final class ResidueInput
 {
     public function __construct(
         public string $name,
