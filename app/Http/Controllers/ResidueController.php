@@ -5,24 +5,31 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreResidueRequest;
 use App\Http\Requests\UpdateResidueRequest;
 use App\Jobs\InsertResiduesJob;
+use App\Modules\Residue\Queries\ListResiduesQuery;
 use App\Modules\Residue\UseCases\DeleteResidue;
 use App\Modules\Residue\UseCases\ResidueInput;
 use App\Modules\Residue\UseCases\UpdateResidue;
-use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use RuntimeException;
 
 class ResidueController extends Controller
 {
     public function __construct(
         private readonly UpdateResidue $updateResidue,
-        private readonly DeleteResidue $deleteResidue
+        private readonly DeleteResidue $deleteResidue,
+        private readonly ListResiduesQuery $listResiduesQuery
     ) {
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $residues = $this->listResiduesQuery->handle(
+            $request->get('page', 1),
+            $request->get('limit', 15),
+        );
+
+        return response()->json($residues);
     }
 
     public function store(StoreResidueRequest $request)
