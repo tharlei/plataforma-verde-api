@@ -39,7 +39,7 @@
 
 :warning: [MySQL](https://hub.docker.com/_/mysql)
 
-## Como rodar a aplicação :arrow_forward:
+## Execute projeto
 
 No terminal, clone o projeto:
 
