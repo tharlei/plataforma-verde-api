@@ -13,7 +13,6 @@ use App\Modules\Residue\UseCases\UpdateResidue;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class ResidueController extends Controller
 {
@@ -39,10 +38,11 @@ class ResidueController extends Controller
     {
         $storagePath = $request->file('spreadsheet')->store('spreadsheets');
 
-        InsertResiduesJob::dispatch($storagePath);
-        Log::notice('Tarefa de inserção de dados da planilha de Resíduo iniciada', [$storagePath]);
+        $jobId = InsertResiduesJob::send(['storagePath' => $storagePath]);
 
         return response()->json([
+            'job_id' => $jobId,
+            'check_status' => route('dispatched.job.show', $jobId),
             'message' => 'Planilha logo será processada'
         ], 200);
     }
