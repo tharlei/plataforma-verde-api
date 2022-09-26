@@ -2,43 +2,29 @@
 
 namespace App\Jobs;
 
+use App\Enums\DispatchedJobStatus;
 use App\Modules\Residue\UseCases\ResidueInput;
 use App\Modules\Residue\UseCases\InsertManyResidues;
 use App\Utils\SpreadsheetUtil;
 use Exception;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class InsertResiduesJob implements ShouldQueue
+class InsertResiduesJob extends Job
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
     public function __construct(
         private readonly string $storagePath,
     ) {
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
-    public function handle(SpreadsheetUtil $spreadsheetUtil, InsertManyResidues $insertManyResidues)
+    public function handle(SpreadsheetUtil $spreadsheetUtil, InsertManyResidues $insertManyResidues): void
     {
         try {
+            $this->processStatus(DispatchedJobStatus::PROCESSING);
+
             $spreadsheetItems = $spreadsheetUtil->mapToCollection($this->storagePath);
 
-            $input = $spreadsheetItems->map(fn ($item) => new ResidueInput(
+            $residues = $spreadsheetItems->map(fn ($item) => new ResidueInput(
                 $item->nome_comum_do_residuo,
                 $item->tipo_de_residuo,
                 $item->categoria,
@@ -48,13 +34,24 @@ class InsertResiduesJob implements ShouldQueue
                 $item->peso
             ))->toArray();
 
-            $insertManyResidues->handle($input);
+            $amountResidues = count($residues);
+
+            $insertManyResidues->handle($residues);
 
             Storage::delete($this->storagePath);
+
+            $status = DispatchedJobStatus::SUCCESS;
+            $response = "Foram adicionados {$amountResidues} resíduos com sucesso";
         } catch (Exception $exception) {
-            Log::error('Erro ao processar planilha de dados de Resíduo', [
+            $status = DispatchedJobStatus::FAILED;
+            $response = $exception->getMessage();
+
+            Log::error($exception->getMessage(), [
+                'storage_path' => $this->storagePath,
                 'exception' => $exception
             ]);
+        } finally {
+            $this->endedStatus($status, $response);
         }
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DispatchedJobController;
 use App\Http\Controllers\ResidueController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,3 +21,5 @@ Route::get('/residues/{id}', [ResidueController::class, 'show'])->name('residue.
 Route::post('/residues', [ResidueController::class, 'store'])->name('residue.store');
 Route::put('/residues/{id}', [ResidueController::class, 'update'])->name('residue.update');
 Route::delete('/residues/{id}', [ResidueController::class, 'destroy'])->name('residue.delete');
+
+Route::get('/dispatched/jobs/{id}', [DispatchedJobController::class, 'show'])->name('dispatched.job.show');
